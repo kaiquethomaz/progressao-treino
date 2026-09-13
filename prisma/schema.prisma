@@ -1,0 +1,160 @@
+// Schema do banco de dados — Progressão de Treino
+// Docs: https://pris.ly/d/prisma-schema
+// Modelo de domínio: Usuário -> Rotina -> Dia -> Exercícios (rotina)
+//                    Usuário -> Sessões de treino -> Séries registradas (cargas)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Grupos musculares principais
+enum MuscleGroup {
+  PEITO
+  COSTAS
+  PERNAS
+  OMBROS
+  BICEPS
+  TRICEPS
+  ABDOMEN
+  GLUTEOS
+  PANTURRILHA
+  ANTEBRACO
+  CARDIO
+  OUTRO
+}
+
+// Dias da semana
+enum Weekday {
+  SEGUNDA
+  TERCA
+  QUARTA
+  QUINTA
+  SEXTA
+  SABADO
+  DOMINGO
+}
+
+// Usuário do sistema (mesmo sendo pessoal, modelamos direito)
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  exercises Exercise[]
+  routines  Routine[]
+  sessions  WorkoutSession[]
+}
+
+// Catálogo de exercícios do usuário
+model Exercise {
+  id          String      @id @default(cuid())
+  name        String
+  muscleGroup MuscleGroup
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  routineDayExercises RoutineDayExercise[]
+  setEntries          SetEntry[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+// Uma rotina de treino (ex: "Treino ABC 2026"). Pode haver várias, uma ativa.
+model Routine {
+  id        String   @id @default(cuid())
+  name      String
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  days RoutineDay[]
+
+  @@index([userId])
+}
+
+// Um dia da rotina (ex: Segunda = "Peito e Tríceps")
+model RoutineDay {
+  id      String  @id @default(cuid())
+  weekday Weekday
+  label   String
+
+  routineId String
+  routine   Routine @relation(fields: [routineId], references: [id], onDelete: Cascade)
+
+  exercises RoutineDayExercise[]
+  sessions  WorkoutSession[]
+
+  @@unique([routineId, weekday])
+  @@index([routineId])
+}
+
+// Tabela de junção: quais exercícios em cada dia, com metas de séries/reps
+model RoutineDayExercise {
+  id         String @id @default(cuid())
+  order      Int    @default(0)
+  targetSets Int    @default(3)
+  targetReps Int    @default(10)
+
+  routineDayId String
+  routineDay   RoutineDay @relation(fields: [routineDayId], references: [id], onDelete: Cascade)
+
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([routineDayId, exerciseId])
+  @@index([routineDayId])
+  @@index([exerciseId])
+}
+
+// Uma sessão de treino realizada numa data
+model WorkoutSession {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  routineDayId String?
+  routineDay   RoutineDay? @relation(fields: [routineDayId], references: [id], onDelete: SetNull)
+
+  setEntries SetEntry[]
+
+  @@index([userId])
+  @@index([routineDayId])
+}
+
+// Cada série registrada numa sessão (o coração da progressão de cargas)
+model SetEntry {
+  id        String   @id @default(cuid())
+  setNumber Int
+  weight    Float // carga em kg
+  reps      Int
+  rpe       Float? // esforço percebido opcional (1-10)
+  createdAt DateTime @default(now())
+
+  sessionId String
+  session   WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  exerciseId String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([exerciseId])
+}

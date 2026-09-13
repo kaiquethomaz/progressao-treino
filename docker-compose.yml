@@ -1,0 +1,49 @@
+# Sobe a stack completa: banco PostgreSQL + migrações + aplicação.
+# Uso:  docker compose up --build
+# Depois acesse http://localhost:3000
+#
+# Observação: não foi testado no ambiente de criação (Docker não instalado).
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: treino
+      POSTGRES_PASSWORD: treino
+      POSTGRES_DB: treino
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U treino -d treino"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Aplica as migrações no banco antes de subir a aplicação
+  migrate:
+    build:
+      context: .
+      target: builder
+    command: npx prisma migrate deploy
+    environment:
+      DATABASE_URL: postgres://treino:treino@db:5432/treino
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      target: runner
+    environment:
+      DATABASE_URL: postgres://treino:treino@db:5432/treino
+    ports:
+      - "3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  db_data:
