@@ -1,0 +1,10 @@
+# Configuração de deploy no Netlify.
+# O runtime de Next.js do Netlify (@netlify/plugin-nextjs) é detectado e
+# instalado automaticamente — não precisa configurar publish dir nem functions.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  # Next 16 exige Node moderno. 22 é LTS e suportado pelo Netlify.
+  NODE_VERSION = "22"
