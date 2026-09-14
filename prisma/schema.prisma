@@ -41,15 +41,31 @@ enum Weekday {
 
 // Usuário do sistema (mesmo sendo pessoal, modelamos direito)
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String? // definido no primeiro acesso (/setup)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  exercises Exercise[]
-  routines  Routine[]
-  sessions  WorkoutSession[]
+  exercises    Exercise[]
+  routines     Routine[]
+  sessions     WorkoutSession[]
+  authSessions Session[]
+}
+
+// Sessão de login (autenticação). Guardamos só o hash do token; o valor
+// bruto fica no cookie httpOnly do navegador.
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // Catálogo de exercícios do usuário

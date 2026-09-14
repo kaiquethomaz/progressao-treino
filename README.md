@@ -13,6 +13,7 @@ relacional PostgreSQL e pronto para deploy **gratuito**.
 - **Registro de treinos** — ao registrar, o sistema sugere a última carga usada
 - **Gráficos de progresso** — evolução de carga e 1RM estimado por exercício
 - **Dashboard** — volume por semana, recordes e treinos recentes
+- **Autenticação** — login com email + senha (hash bcrypt) e sessão em cookie httpOnly
 
 ## 🧱 Stack
 
@@ -66,6 +67,21 @@ npm run dev
 ```
 
 Acesse http://localhost:3000
+
+> **Primeiro acesso:** o app pede login. Como ainda não há senha, você será
+> levado para `/setup` para criar a sua. Depois disso, use `/login` normalmente.
+
+### Autenticação
+
+Implementação própria, sem bibliotecas externas de auth:
+
+- Senha guardada com **hash bcrypt** (nunca em texto puro)
+- Sessão em **cookie httpOnly** (o navegador não expõe ao JavaScript), com o
+  token guardado como **hash** na tabela `Session`
+- O guard `requireUser()` fica junto do acesso a dados (`getCurrentUser`), então
+  **todas as páginas e Server Actions exigem login** automaticamente
+- App de login único (pessoal). Para multiusuário, o modelo de dados já está
+  pronto (cada registro pertence a um `User`)
 
 ### Scripts úteis
 

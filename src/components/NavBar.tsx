@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/lib/actions/auth";
 
 const LINKS = [
   { href: "/", label: "Dashboard" },
@@ -11,8 +12,13 @@ const LINKS = [
   { href: "/exercicios", label: "Exercícios" },
 ];
 
-export function NavBar() {
+// Rotas sem barra de navegação (fluxo de autenticação)
+const HIDDEN_ON = ["/login", "/setup"];
+
+export function NavBar({ userName }: { userName?: string | null }) {
   const pathname = usePathname();
+
+  if (HIDDEN_ON.includes(pathname)) return null;
 
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-surface/80 backdrop-blur">
@@ -42,6 +48,21 @@ export function NavBar() {
             );
           })}
         </nav>
+        {userName && (
+          <div className="flex items-center gap-2">
+            <span className="hidden text-sm text-muted sm:inline">
+              {userName}
+            </span>
+            <form action={logout}>
+              <button
+                type="submit"
+                className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground"
+              >
+                Sair
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </header>
   );

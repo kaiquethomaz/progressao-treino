@@ -2,7 +2,7 @@
 # Uso: abra o PowerShell nesta pasta e rode:  . .\ativar-ambiente.ps1
 # (o ponto antes do caminho eh importante!)
 
-$env:Path = "D:\dev-tools\node;D:\dev-tools\git\cmd;D:\dev-tools\npm-global;" + $env:Path
+$env:Path = "D:\dev-tools\node;D:\dev-tools\git\cmd;D:\dev-tools\gh\bin;D:\dev-tools\npm-global;" + $env:Path
 $env:NPM_CONFIG_CACHE = "D:\dev-tools\npm-cache"
 
 Write-Host ""
