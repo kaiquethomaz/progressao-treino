@@ -19,6 +19,10 @@ export const metadata: Metadata = {
   description:
     "Gerencie sua rotina semanal e acompanhe a evolução das suas cargas.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon-192.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
