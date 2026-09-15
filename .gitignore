@@ -45,6 +45,9 @@ yarn-error.log*
 /.claude/settings.local.json
 /skills-lock.json
 
+# atalho local da máquina (ambiente portátil em D:\dev-tools)
+/ativar-ambiente.ps1
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
