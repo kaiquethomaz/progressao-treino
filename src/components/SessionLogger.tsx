@@ -228,10 +228,45 @@ export function SessionLogger({
         <Card>
           <SectionTitle>Séries</SectionTitle>
           {rows.length === 0 ? (
-            <p className="py-10 text-center text-sm text-muted">
-              Carregue um treino da rotina ou adicione um exercício para
-              começar.
-            </p>
+            <div className="mx-auto max-w-md py-8 text-center">
+              <div className="mb-2 text-3xl opacity-80">📋</div>
+              <p className="font-semibold">Comece seu treino</p>
+              <p className="mt-1 text-sm text-muted">
+                Toque num treino da sua rotina para carregar os exercícios com a
+                última carga — ou adicione um exercício avulso.
+              </p>
+              {routineDays.length > 0 && (
+                <div className="mt-5 space-y-2 text-left">
+                  {routineDays.map((d) => (
+                    <button
+                      key={d.id}
+                      onClick={() => loadDay(d.id)}
+                      className="group flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2 p-3 text-left transition-colors duration-150 hover:border-accent/50"
+                    >
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-3 text-xs font-bold text-accent">
+                        {WEEKDAY_LABELS[d.weekday].slice(0, 3)}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-medium group-hover:text-accent">
+                          {d.label}
+                        </span>
+                        <span className="block truncate text-xs text-muted">
+                          {d.exercises.length > 0
+                            ? d.exercises.map((e) => e.exercise.name).join(" · ")
+                            : "Sem exercícios neste dia"}
+                        </span>
+                      </span>
+                      <span
+                        aria-hidden
+                        className="text-muted transition-all duration-150 group-hover:translate-x-0.5 group-hover:text-accent"
+                      >
+                        →
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           ) : (
             <div className="space-y-5">
               {grouped.map(([exId, exRows]) => (

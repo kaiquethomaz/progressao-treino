@@ -1,6 +1,23 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition, type ReactNode } from "react";
+import {
+  DndContext,
+  PointerSensor,
+  KeyboardSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import type { MuscleGroup, Weekday } from "@/generated/prisma/enums";
 import { WEEKDAY_LABELS, WEEKDAY_ORDER } from "@/lib/labels";
 import { Card, MuscleBadge, SectionTitle } from "@/components/ui";
@@ -9,6 +26,7 @@ import {
   addRoutineDay,
   deleteRoutineDay,
   removeExerciseFromDay,
+  reorderDayExercises,
   updateRoutineDayExercise,
 } from "@/lib/actions/routine";
 
@@ -129,6 +147,36 @@ function DayCard({
   const available = allExercises.filter((e) => !usedIds.has(e.id));
   const [toAdd, setToAdd] = useState(available[0]?.id ?? "");
 
+  // Ordem local (otimista) dos exercícios, para o drag-and-drop
+  const [items, setItems] = useState(day.exercises);
+  useEffect(() => {
+    setItems(day.exercises);
+  }, [day.exercises]);
+
+  // Só habilita o drag após montar no cliente (evita mismatch de hidratação do dnd-kit)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex((i) => i.id === active.id);
+    const newIndex = items.findIndex((i) => i.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = arrayMove(items, oldIndex, newIndex);
+    setItems(next); // otimista
+    startTransition(async () => {
+      await reorderDayExercises(next.map((i) => i.id));
+    });
+  }
+
   function add() {
     if (!toAdd) return;
     startTransition(async () => {
@@ -162,14 +210,32 @@ function DayCard({
         </button>
       </div>
 
-      {day.exercises.length === 0 ? (
+      {items.length === 0 ? (
         <p className="py-3 text-sm text-muted">Nenhum exercício neste dia.</p>
-      ) : (
+      ) : !mounted ? (
         <ul className="mb-3 space-y-2">
-          {day.exercises.map((e) => (
-            <RoutineExerciseRow key={e.id} item={e} />
+          {items.map((e) => (
+            <StaticRow key={e.id} item={e} />
           ))}
         </ul>
+      ) : (
+        <DndContext
+          id={`dnd-${day.id}`}
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={items.map((i) => i.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <ul className="mb-3 space-y-2">
+              {items.map((e) => (
+                <SortableRow key={e.id} item={e} />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
       )}
 
       {available.length > 0 ? (
@@ -203,11 +269,12 @@ function DayCard({
   );
 }
 
-function RoutineExerciseRow({
-  item,
-}: {
-  item: RoutineDayView["exercises"][number];
-}) {
+type RowItem = RoutineDayView["exercises"][number];
+
+const ROW_CLASS =
+  "flex items-center justify-between gap-2 rounded-lg bg-surface-2 px-2 py-2";
+
+function RowBody({ item, handle }: { item: RowItem; handle: ReactNode }) {
   const [sets, setSets] = useState(item.targetSets);
   const [reps, setReps] = useState(item.targetReps);
   const [pending, startTransition] = useTransition();
@@ -229,13 +296,16 @@ function RoutineExerciseRow({
   }
 
   return (
-    <li className="flex items-center justify-between gap-2 rounded-lg bg-surface-2 px-3 py-2">
-      <div className="min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-sm font-medium">
-            {item.exercise.name}
-          </span>
-          <MuscleBadge group={item.exercise.muscleGroup} />
+    <>
+      <div className="flex min-w-0 items-center gap-1.5">
+        {handle}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="truncate text-sm font-medium">
+              {item.exercise.name}
+            </span>
+            <MuscleBadge group={item.exercise.muscleGroup} />
+          </div>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1 text-xs text-muted">
@@ -263,6 +333,57 @@ function RoutineExerciseRow({
           ✕
         </button>
       </div>
+    </>
+  );
+}
+
+// Versão estática (SSR / antes de montar no cliente) — sem drag, sem mismatch
+function StaticRow({ item }: { item: RowItem }) {
+  return (
+    <li className={ROW_CLASS}>
+      <RowBody item={item} handle={<span className="px-1 text-muted/40">⠿</span>} />
+    </li>
+  );
+}
+
+// Versão arrastável (após montar no cliente)
+function SortableRow({ item }: { item: RowItem }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.85 : 1,
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={`${ROW_CLASS} ${isDragging ? "ring-1 ring-accent/50" : ""}`}
+    >
+      <RowBody
+        item={item}
+        handle={
+          <button
+            {...attributes}
+            {...listeners}
+            className="cursor-grab touch-none rounded px-1 text-muted hover:text-foreground active:cursor-grabbing"
+            title="Arrastar para reordenar"
+            aria-label="Arrastar para reordenar"
+          >
+            ⠿
+          </button>
+        }
+      />
     </li>
   );
 }

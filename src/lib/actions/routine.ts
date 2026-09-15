@@ -99,3 +99,18 @@ export async function removeExerciseFromDay(id: string) {
   revalidatePath("/registrar");
   return { ok: true };
 }
+
+/** Persiste a nova ordem dos exercícios de um dia (após arrastar). */
+export async function reorderDayExercises(orderedIds: string[]) {
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.routineDayExercise.update({
+        where: { id },
+        data: { order: index },
+      }),
+    ),
+  );
+  revalidatePath("/rotina");
+  revalidatePath("/registrar");
+  return { ok: true };
+}

@@ -32,7 +32,8 @@ export function NavBar({ userName }: { userName?: string | null }) {
           </span>
           <span className="hidden sm:inline">Progressão</span>
         </Link>
-        <nav className="flex flex-1 flex-wrap items-center gap-1 text-sm font-medium">
+        <div className="flex-1 sm:hidden" />
+        <nav className="hidden flex-1 flex-wrap items-center gap-1 text-sm font-medium sm:flex">
           {LINKS.map((link) => {
             const active =
               link.href === "/"

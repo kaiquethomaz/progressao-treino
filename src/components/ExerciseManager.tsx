@@ -26,6 +26,22 @@ export function ExerciseManager({ exercises }: { exercises: ExerciseRow[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  // Busca + filtro por grupo muscular
+  const [query, setQuery] = useState("");
+  const [activeGroup, setActiveGroup] = useState<MuscleGroup | "TODOS">("TODOS");
+
+  // Grupos que o usuário realmente tem (para os chips de filtro)
+  const groupsPresent = MUSCLE_GROUPS.filter((g) =>
+    exercises.some((e) => e.muscleGroup === g),
+  );
+
+  const q = query.trim().toLowerCase();
+  const visible = exercises.filter(
+    (e) =>
+      (activeGroup === "TODOS" || e.muscleGroup === activeGroup) &&
+      (q === "" || e.name.toLowerCase().includes(q)),
+  );
+
   function handleAdd() {
     setError(null);
     startTransition(async () => {
@@ -94,16 +110,50 @@ export function ExerciseManager({ exercises }: { exercises: ExerciseRow[] }) {
       {/* Lista */}
       <div className="lg:col-span-2">
         <Card>
-          <h2 className="mb-4 text-lg font-semibold">
-            Meus exercícios ({exercises.length})
-          </h2>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold">Meus exercícios</h2>
+            <span className="text-sm text-muted tabular">
+              {visible.length}/{exercises.length}
+            </span>
+          </div>
+
+          {exercises.length > 0 && (
+            <div className="mb-4 space-y-3">
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar exercício..."
+                className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+              <div className="flex flex-wrap gap-1.5">
+                <FilterChip
+                  label="Todos"
+                  active={activeGroup === "TODOS"}
+                  onClick={() => setActiveGroup("TODOS")}
+                />
+                {groupsPresent.map((g) => (
+                  <FilterChip
+                    key={g}
+                    label={MUSCLE_GROUP_LABELS[g]}
+                    active={activeGroup === g}
+                    onClick={() => setActiveGroup(g)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {exercises.length === 0 ? (
             <p className="py-8 text-center text-sm text-muted">
               Nenhum exercício cadastrado. Adicione o primeiro ao lado.
             </p>
+          ) : visible.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted">
+              Nenhum exercício encontrado com esse filtro.
+            </p>
           ) : (
             <ul className="divide-y divide-border">
-              {exercises.map((ex) =>
+              {visible.map((ex) =>
                 editingId === ex.id ? (
                   <EditRow
                     key={ex.id}
@@ -230,6 +280,29 @@ function DeleteButton({ id, count }: { id: string; count: number }) {
       className="rounded-lg border border-border px-2.5 py-1 text-xs text-rose-400 hover:bg-rose-500/10 disabled:opacity-50"
     >
       {pending ? "..." : "Excluir"}
+    </button>
+  );
+}
+
+function FilterChip({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors duration-150 ${
+        active
+          ? "bg-accent text-accent-contrast"
+          : "border border-border text-muted hover:border-border-strong hover:text-foreground"
+      }`}
+    >
+      {label}
     </button>
   );
 }

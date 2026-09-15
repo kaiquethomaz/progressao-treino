@@ -147,31 +147,39 @@ export default async function DashboardPage() {
               }
             />
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="-mx-2 divide-y divide-border">
               {recentSessions.map((s) => {
                 const vol = s.setEntries.reduce(
                   (acc, e) => acc + setVolume(e.weight, e.reps),
                   0,
                 );
                 return (
-                  <li
-                    key={s.id}
-                    className="flex items-center justify-between gap-3 py-3"
-                  >
-                    <div>
-                      <p className="font-semibold">
-                        {s.routineDay?.label ?? "Treino avulso"}
-                      </p>
-                      <p className="text-xs text-muted">{formatDate(s.date)}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="stat-number text-sm text-accent">
-                        {Math.round(vol).toLocaleString("pt-BR")} kg
-                      </p>
-                      <p className="text-xs text-muted">
-                        {s.setEntries.length} séries
-                      </p>
-                    </div>
+                  <li key={s.id}>
+                    <Link
+                      href={`/treino/${s.id}`}
+                      className="group flex items-center gap-3 rounded-lg px-2 py-3 transition-colors duration-150 hover:bg-surface-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold">
+                          {s.routineDay?.label ?? "Treino avulso"}
+                        </p>
+                        <p className="text-xs text-muted">{formatDate(s.date)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="stat-number text-sm text-accent">
+                          {Math.round(vol).toLocaleString("pt-BR")} kg
+                        </p>
+                        <p className="text-xs text-muted">
+                          {s.setEntries.length} séries
+                        </p>
+                      </div>
+                      <span
+                        aria-hidden
+                        className="text-muted transition-all duration-150 group-hover:translate-x-0.5 group-hover:text-accent"
+                      >
+                        →
+                      </span>
+                    </Link>
                   </li>
                 );
               })}

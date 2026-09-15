@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Archivo, Inter } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/NavBar";
+import { BottomNav } from "@/components/BottomNav";
 import { getSessionUser } from "@/lib/auth";
 
 const display = Archivo({
@@ -15,6 +16,17 @@ export const metadata: Metadata = {
   title: "Progressão de Treino",
   description:
     "Gerencie sua rotina semanal e acompanhe a evolução das suas cargas.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Progressão",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0a0b0e",
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -26,12 +38,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <NavBar userName={user?.name} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-8 pb-24 sm:pb-8">
           {children}
         </main>
-        <footer className="border-t border-border py-6 text-center text-xs text-muted">
+        <footer className="border-t border-border py-6 pb-24 text-center text-xs text-muted sm:pb-6">
           Progressão de Treino · feito com Next.js, Prisma e PostgreSQL
         </footer>
+        <BottomNav />
       </body>
     </html>
   );
