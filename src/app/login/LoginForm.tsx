@@ -32,11 +32,11 @@ export function LoginForm({ defaultEmail }: { defaultEmail?: string }) {
           className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
         />
       </div>
-      {state?.error && <p className="text-sm text-rose-400">{state.error}</p>}
+      {state?.error && <p className="text-sm text-danger">{state.error}</p>}
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-slate-900 hover:bg-accent/90 disabled:opacity-50"
+        className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-50"
       >
         {pending ? "Entrando..." : "Entrar"}
       </button>

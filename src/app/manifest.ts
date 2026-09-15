@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Gerencie sua rotina semanal e acompanhe a evolução das suas cargas.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0a0b0e",
-    theme_color: "#0a0b0e",
+    background_color: "#121417",
+    theme_color: "#121417",
     lang: "pt-BR",
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

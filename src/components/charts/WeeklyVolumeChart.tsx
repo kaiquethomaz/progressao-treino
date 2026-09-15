@@ -24,35 +24,39 @@ export function WeeklyVolumeChart({ data }: { data: Point[] }) {
   return (
     <ResponsiveContainer width="100%" height={260}>
       <BarChart data={data} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#262b34" vertical={false} />
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke="var(--border)"
+          vertical={false}
+        />
         <XAxis
           dataKey="label"
-          stroke="#8b93a1"
+          stroke="var(--muted)"
           fontSize={12}
           tickLine={false}
           axisLine={false}
         />
         <YAxis
-          stroke="#8b93a1"
+          stroke="var(--muted)"
           fontSize={12}
           tickLine={false}
           axisLine={false}
           tickFormatter={(v) => `${Math.round(v / 1000)}k`}
         />
         <Tooltip
-          cursor={{ fill: "rgba(194,245,66,0.08)" }}
+          cursor={{ fill: "var(--accent-soft)" }}
           contentStyle={{
-            background: "#131519",
-            border: "1px solid #262b34",
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
             borderRadius: 12,
-            color: "#eef1f5",
+            color: "var(--foreground)",
           }}
           formatter={(value: unknown) => [
             `${Math.round(Number(value)).toLocaleString("pt-BR")} kg`,
             "Volume",
           ]}
         />
-        <Bar dataKey="volume" fill="#c2f542" radius={[6, 6, 0, 0]} />
+        <Bar dataKey="volume" fill="var(--accent)" radius={[6, 6, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

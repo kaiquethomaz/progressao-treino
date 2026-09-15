@@ -126,7 +126,7 @@ function AddDayForm({ weekdays }: { weekdays: Weekday[] }) {
         <button
           onClick={add}
           disabled={pending}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-slate-900 hover:bg-accent/90 disabled:opacity-50"
+          className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-50"
         >
           Adicionar
         </button>
@@ -204,7 +204,7 @@ function DayCard({
         <button
           onClick={removeDay}
           disabled={pending}
-          className="rounded-lg border border-border px-2.5 py-1 text-xs text-rose-400 hover:bg-rose-500/10"
+          className="rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-danger/40 hover:text-danger"
         >
           Remover dia
         </button>
@@ -327,7 +327,7 @@ function RowBody({ item, handle }: { item: RowItem; handle: ReactNode }) {
         <button
           onClick={remove}
           disabled={pending}
-          className="ml-1 rounded px-1.5 py-0.5 text-rose-400 hover:bg-rose-500/10"
+          className="ml-1 rounded px-1.5 py-0.5 text-muted transition-colors hover:text-danger"
           title="Remover"
         >
           ✕

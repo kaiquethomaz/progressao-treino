@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const LINKS = [
   { href: "/", label: "Dashboard" },
@@ -54,24 +55,27 @@ export function NavBar({ userName }: { userName?: string | null }) {
             );
           })}
         </nav>
-        {userName && (
-          <div className="flex items-center gap-3">
-            <span className="hidden items-center gap-2 text-sm text-muted-strong sm:flex">
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-xs font-bold text-accent">
-                {userName.charAt(0).toUpperCase()}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {userName && (
+            <>
+              <span className="hidden items-center gap-2 text-sm text-muted-strong sm:flex">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-xs font-bold text-accent">
+                  {userName.charAt(0).toUpperCase()}
+                </span>
+                {userName}
               </span>
-              {userName}
-            </span>
-            <form action={logout}>
-              <button
-                type="submit"
-                className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground"
-              >
-                Sair
-              </button>
-            </form>
-          </div>
-        )}
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground"
+                >
+                  Sair
+                </button>
+              </form>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

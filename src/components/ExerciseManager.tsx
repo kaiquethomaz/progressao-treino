@@ -96,11 +96,11 @@ export function ExerciseManager({ exercises }: { exercises: ExerciseRow[] }) {
               className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </div>
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <button
             onClick={handleAdd}
             disabled={pending || !name.trim()}
-            className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-slate-900 hover:bg-accent/90 disabled:opacity-50"
+            className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
             {pending ? "Salvando..." : "Adicionar exercício"}
           </button>
@@ -244,7 +244,7 @@ function EditRow({
         <button
           onClick={save}
           disabled={pending}
-          className="rounded-lg bg-accent px-3 py-1 text-xs font-medium text-slate-900 disabled:opacity-50"
+          className="rounded-lg bg-accent px-3 py-1 text-xs font-semibold text-accent-contrast disabled:opacity-50"
         >
           Salvar
         </button>
@@ -277,7 +277,7 @@ function DeleteButton({ id, count }: { id: string; count: number }) {
     <button
       onClick={remove}
       disabled={pending}
-      className="rounded-lg border border-border px-2.5 py-1 text-xs text-rose-400 hover:bg-rose-500/10 disabled:opacity-50"
+      className="rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-danger/40 hover:text-danger disabled:opacity-50"
     >
       {pending ? "..." : "Excluir"}
     </button>

@@ -213,11 +213,11 @@ export function SessionLogger({
               ))}
             </select>
           </div>
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <button
             onClick={submit}
             disabled={pending || rows.length === 0}
-            className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-medium text-slate-900 hover:bg-accent/90 disabled:opacity-50"
+            className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
             {pending ? "Salvando..." : "Salvar treino"}
           </button>
@@ -325,7 +325,7 @@ export function SessionLogger({
                         />
                         <button
                           onClick={() => removeRow(r.key)}
-                          className="text-center text-rose-400 hover:text-rose-300"
+                          className="text-center text-muted transition-colors hover:text-danger"
                           title="Remover série"
                         >
                           ✕

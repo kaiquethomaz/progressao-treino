@@ -25,9 +25,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0b0e",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f7f9" },
+    { media: "(prefers-color-scheme: dark)", color: "#121417" },
+  ],
   viewportFit: "cover",
 };
+
+// Aplica o tema salvo (ou o do sistema) antes da pintura, evitando "flash".
+const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}if(t==='dark')document.documentElement.classList.add('dark');}catch(e){document.documentElement.classList.add('dark');}})();`;
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const user = await getSessionUser();
@@ -35,8 +41,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="pt-BR"
       className={`${sans.variable} ${display.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <NavBar userName={user?.name} />
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-8 pb-24 sm:pb-8">
           {children}

@@ -1,38 +1,64 @@
 @import "tailwindcss";
 
 /*
-  Sistema de design — "Atlético & Energético"
-  Base escura de alto contraste + accent verde-limão elétrico.
-  Tipografia: display forte (Archivo) para títulos/números, sans limpa no corpo.
+  Sistema de design v2 — "Saúde & Performance"
+  Base grafite (sem preto puro) + accent esmeralda refinado.
+  Suporte a tema claro e escuro (classe .dark no <html>).
+  Tipografia: display Archivo para títulos/números, Inter no corpo.
 */
 
+/* ---------- TEMA CLARO (padrão) ---------- */
 :root {
-  /* Superfícies (do fundo para cima) */
-  --background: #0a0b0e;
-  --surface: #131519;
-  --surface-2: #1b1e25;
-  --surface-3: #232833;
+  color-scheme: light;
 
-  /* Bordas */
-  --border: #262b34;
-  --border-strong: #333b48;
+  --background: #f5f7f9;
+  --surface: #ffffff;
+  --surface-2: #f1f3f5;
+  --surface-3: #e8ebee;
 
-  /* Texto */
-  --foreground: #eef1f5;
-  --muted: #8b93a1;
-  --muted-strong: #aeb6c4;
+  --border: #e2e6ea;
+  --border-strong: #cbd2da;
 
-  /* Accent — verde-limão elétrico */
-  --accent: #c2f542;
-  --accent-hover: #d0f96a;
-  --accent-contrast: #0a0b0e;
+  --foreground: #111418;
+  --muted: #5b636e; /* ratio >= 4.5:1 sobre branco */
+  --muted-strong: #39414b;
 
-  /* Apoio */
-  --danger: #fb7185;
-  --chart-2: #38bdf8;
+  --accent: #059669; /* emerald-600 (contraste melhor em fundo claro) */
+  --accent-hover: #047857;
+  --accent-contrast: #ffffff;
+  --accent-soft: rgba(5, 150, 105, 0.1);
 
-  /* Movimento */
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --chart-2: #0284c7;
+
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* ---------- TEMA ESCURO ---------- */
+:root.dark {
+  color-scheme: dark;
+
+  --background: #121417;
+  --surface: #1e2228;
+  --surface-2: #262b33;
+  --surface-3: #2e3540;
+
+  --border: #2e3540;
+  --border-strong: #3c4450;
+
+  --foreground: #e7eaef;
+  --muted: #9ca3af; /* ratio >= 4.5:1 sobre grafite */
+  --muted-strong: #c4cad3;
+
+  --accent: #10b981; /* emerald-500 */
+  --accent-hover: #34d399;
+  --accent-contrast: #05130d;
+  --accent-soft: rgba(16, 185, 129, 0.14);
+
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.14);
+  --chart-2: #38bdf8;
 }
 
 @theme inline {
@@ -63,7 +89,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Títulos com o display font e tracking justo (cara atlética) */
 h1,
 h2,
 h3 {
@@ -71,7 +96,6 @@ h3 {
   letter-spacing: -0.02em;
 }
 
-/* Números de destaque: peso alto, largura fixa (não "dançam" ao atualizar) */
 .stat-number {
   font-family: var(--font-display), var(--font-sans), sans-serif;
   font-weight: 800;
@@ -83,7 +107,6 @@ h3 {
   font-variant-numeric: tabular-nums;
 }
 
-/* Eyebrow: rótulo pequeno em maiúsculas, bem espaçado */
 .eyebrow {
   font-size: 0.7rem;
   font-weight: 600;
@@ -92,7 +115,6 @@ h3 {
   color: var(--muted);
 }
 
-/* Acessibilidade: foco visível consistente */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -108,7 +130,6 @@ h3 {
   scrollbar-color: var(--border-strong) transparent;
 }
 
-/* Entrada sutil e curta (sem bounce). Respeita quem prefere menos movimento. */
 @keyframes rise {
   from {
     opacity: 0;
