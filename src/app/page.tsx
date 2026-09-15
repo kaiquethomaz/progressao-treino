@@ -5,11 +5,24 @@ import { Card, EmptyState, SectionTitle, StatCard } from "@/components/ui";
 import { Icon } from "@/components/nav-icons";
 import { WeeklyVolumeChart } from "@/components/charts/WeeklyVolumeChart";
 import { formatDate, formatDateShort, setVolume } from "@/lib/calc";
+import { WEEKDAY_LABELS } from "@/lib/labels";
+import type { Weekday } from "@/generated/prisma/enums";
 
 export const dynamic = "force-dynamic";
 
 const WEEKS = 8;
 const DAY = 24 * 60 * 60 * 1000;
+
+// getDay(): 0=domingo ... 6=sábado → enum Weekday
+const JS_DAY_TO_WEEKDAY: Weekday[] = [
+  "DOMINGO",
+  "SEGUNDA",
+  "TERCA",
+  "QUARTA",
+  "QUINTA",
+  "SEXTA",
+  "SABADO",
+];
 
 function pctTrend(current: number, previous: number) {
   if (previous <= 0) return undefined;
@@ -24,7 +37,9 @@ export default async function DashboardPage() {
   const weekStart = new Date(Date.now() - WEEKS * 7 * DAY);
   const now = Date.now();
 
-  const [totalSessions, totalSets, entries, sessions30d, sessionsPrev30d, recentSessions] =
+  const todayWeekday = JS_DAY_TO_WEEKDAY[new Date().getDay()];
+
+  const [totalSessions, totalSets, entries, sessions30d, sessionsPrev30d, recentSessions, todayDay] =
     await Promise.all([
       prisma.workoutSession.count({ where: { userId: user.id } }),
       prisma.setEntry.count({ where: { session: { userId: user.id } } }),
@@ -49,6 +64,13 @@ export default async function DashboardPage() {
           routineDay: true,
           setEntries: { select: { weight: true, reps: true } },
         },
+      }),
+      prisma.routineDay.findFirst({
+        where: {
+          routine: { userId: user.id, isActive: true },
+          weekday: todayWeekday,
+        },
+        select: { label: true, _count: { select: { exercises: true } } },
       }),
     ]);
 
@@ -96,6 +118,48 @@ export default async function DashboardPage() {
           + Registrar treino
         </Link>
       </div>
+
+      {/* Treino de hoje */}
+      {todayDay ? (
+        <Link
+          href="/registrar"
+          className="group flex items-center gap-4 rounded-2xl border border-accent/30 bg-accent/5 p-4 transition-colors duration-150 hover:border-accent/60 hover:bg-accent/10"
+        >
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent/15 text-accent">
+            <Icon name="dumbbell" size={22} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="eyebrow text-accent">Treino de hoje</p>
+            <p className="truncate text-lg font-bold">
+              Hoje é dia de: {todayDay.label}
+            </p>
+            <p className="text-xs text-muted">
+              {todayDay._count.exercises}{" "}
+              {todayDay._count.exercises === 1 ? "exercício" : "exercícios"} ·
+              toque para registrar
+            </p>
+          </div>
+          <span
+            aria-hidden
+            className="text-accent transition-transform duration-150 group-hover:translate-x-0.5"
+          >
+            →
+          </span>
+        </Link>
+      ) : (
+        <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-surface-2 text-muted">
+            <Icon name="calendar" size={22} />
+          </span>
+          <div className="min-w-0">
+            <p className="eyebrow">Treino de hoje</p>
+            <p className="text-sm text-muted">
+              Nenhum treino marcado para {WEEKDAY_LABELS[todayWeekday].toLowerCase()}.
+              Dia de descanso ou treino avulso.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-4">
