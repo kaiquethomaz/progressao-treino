@@ -291,10 +291,38 @@ function DeleteButton({ id, count }: { id: string; count: number }) {
     <button
       onClick={remove}
       disabled={pending}
-      className="rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-danger/40 hover:text-danger disabled:opacity-50"
+      aria-label="Excluir exercício"
+      title="Excluir exercício"
+      className="grid h-8 w-8 place-items-center rounded-lg text-muted/60 transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-50"
     >
-      {pending ? "..." : "Excluir"}
+      {pending ? (
+        <span className="text-xs">…</span>
+      ) : (
+        <TrashIcon />
+      )}
     </button>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M3 6h18" />
+      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
   );
 }
 
