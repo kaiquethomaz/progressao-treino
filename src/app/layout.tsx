@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Inter } from "next/font/google";
 import "./globals.css";
-import { NavBar } from "@/components/NavBar";
+import { Sidebar } from "@/components/Sidebar";
+import { MobileTopBar } from "@/components/MobileTopBar";
 import { BottomNav } from "@/components/BottomNav";
+import { Shell } from "@/components/Shell";
 import { getSessionUser } from "@/lib/auth";
 
 const display = Archivo({
@@ -43,15 +45,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${sans.variable} ${display.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full">
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <NavBar userName={user?.name} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-8 pb-24 sm:pb-8">
+        <Sidebar userName={user?.name} />
+        <Shell topbar={<MobileTopBar userName={user?.name} />}>
           {children}
-        </main>
-        <footer className="border-t border-border py-6 pb-24 text-center text-xs text-muted sm:pb-6">
-          Progressão de Treino · feito com Next.js, Prisma e PostgreSQL
-        </footer>
+        </Shell>
         <BottomNav />
       </body>
     </html>
