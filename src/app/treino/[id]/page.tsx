@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { Card, MuscleBadge, StatCard } from "@/components/ui";
+import { SessionActions } from "@/components/SessionActions";
 import { formatDate, formatKg, setVolume, estimate1RM } from "@/lib/calc";
 import { WEEKDAY_LABELS } from "@/lib/labels";
 
@@ -80,6 +81,7 @@ export default async function TreinoDetailPage({
             </h1>
             <p className="mt-1 text-muted">{formatDate(session.date)}</p>
           </div>
+          <SessionActions sessionId={session.id} />
         </div>
       </div>
 

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import type { MuscleGroup, Weekday } from "@/generated/prisma/enums";
 import { WEEKDAY_LABELS } from "@/lib/labels";
 import { Card, SectionTitle } from "@/components/ui";
-import { createSession } from "@/lib/actions/sessions";
+import { createSession, updateSession } from "@/lib/actions/sessions";
 
 type ExerciseLite = { id: string; name: string; muscleGroup: MuscleGroup };
 
@@ -40,21 +40,50 @@ const newRow = (partial: Partial<Row> = {}): Row => ({
   ...partial,
 });
 
+export type EditInitial = {
+  sessionId: string;
+  date: string;
+  dayId: string | null;
+  notes: string;
+  rows: {
+    exerciseId: string;
+    setNumber: number;
+    weight: number;
+    reps: number;
+    rpe: number | null;
+  }[];
+};
+
 export function SessionLogger({
   routineDays,
   allExercises,
   lastByExercise,
+  initial,
 }: {
   routineDays: RoutineDayView[];
   allExercises: ExerciseLite[];
   lastByExercise: Record<string, { weight: number; reps: number }>;
+  initial?: EditInitial;
 }) {
   const router = useRouter();
   const today = new Date().toISOString().slice(0, 10);
-  const [date, setDate] = useState(today);
-  const [dayId, setDayId] = useState("");
-  const [notes, setNotes] = useState("");
-  const [rows, setRows] = useState<Row[]>([]);
+  const editing = Boolean(initial);
+  const [date, setDate] = useState(initial?.date ?? today);
+  const [dayId, setDayId] = useState(initial?.dayId ?? "");
+  const [notes, setNotes] = useState(initial?.notes ?? "");
+  const [rows, setRows] = useState<Row[]>(
+    initial
+      ? initial.rows.map((r) =>
+          newRow({
+            exerciseId: r.exerciseId,
+            setNumber: r.setNumber,
+            weight: String(r.weight),
+            reps: String(r.reps),
+            rpe: r.rpe != null ? String(r.rpe) : "",
+          }),
+        )
+      : [],
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -122,19 +151,32 @@ export function SessionLogger({
       return;
     }
     startTransition(async () => {
-      const res = await createSession({
-        routineDayId: dayId || null,
-        date,
-        notes,
-        sets,
-      });
+      const res =
+        editing && initial
+          ? await updateSession({
+              sessionId: initial.sessionId,
+              routineDayId: dayId || null,
+              date,
+              notes,
+              sets,
+            })
+          : await createSession({
+              routineDayId: dayId || null,
+              date,
+              notes,
+              sets,
+            });
       if (!res.ok) {
         setError(res.error ?? "Erro ao salvar.");
         return;
       }
-      setRows([]);
-      setNotes("");
-      router.push("/");
+      if (editing && initial) {
+        router.push(`/treino/${initial.sessionId}`);
+      } else {
+        setRows([]);
+        setNotes("");
+        router.push("/");
+      }
     });
   }
 
@@ -219,7 +261,11 @@ export function SessionLogger({
             disabled={pending || rows.length === 0}
             className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-50"
           >
-            {pending ? "Salvando..." : "Salvar treino"}
+            {pending
+              ? "Salvando..."
+              : editing
+                ? "Salvar alterações"
+                : "Salvar treino"}
           </button>
         </div>
       </Card>
