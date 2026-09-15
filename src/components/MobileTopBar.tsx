@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Icon } from "@/components/nav-icons";
 
 const HIDDEN_ON = ["/login", "/setup"];
 
@@ -25,6 +26,15 @@ export function MobileTopBar({ userName }: { userName?: string | null }) {
         </Link>
         <div className="flex flex-1 items-center justify-end gap-2">
           <ThemeToggle />
+          {userName && (
+            <Link
+              href="/conta"
+              aria-label="Conta"
+              className="grid h-9 w-9 place-items-center rounded-lg border border-border text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground"
+            >
+              <Icon name="user" size={18} />
+            </Link>
+          )}
           {userName && (
             <form action={logout}>
               <button

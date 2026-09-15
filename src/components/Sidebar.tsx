@@ -48,14 +48,24 @@ export function Sidebar({ userName }: { userName?: string | null }) {
 
       <div className="space-y-3 border-t border-border p-3">
         {userName && (
-          <div className="flex items-center gap-2.5 px-2">
+          <Link
+            href="/conta"
+            className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors duration-150 ${
+              pathname.startsWith("/conta")
+                ? "bg-accent/15"
+                : "hover:bg-surface-2"
+            }`}
+          >
             <span className="grid h-8 w-8 place-items-center rounded-full bg-surface-2 text-sm font-bold text-accent">
               {userName.charAt(0).toUpperCase()}
             </span>
             <span className="min-w-0 flex-1 truncate text-sm text-muted-strong">
               {userName}
             </span>
-          </div>
+            <span className="text-muted">
+              <Icon name="user" size={16} />
+            </span>
+          </Link>
         )}
         <div className="flex items-center gap-2">
           <ThemeToggle />

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/user";
 import {
   createSession,
   destroySession,
@@ -9,7 +10,7 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 
-export type AuthState = { error?: string } | undefined;
+export type AuthState = { error?: string; success?: string } | undefined;
 
 /** Login com email + senha. Usado com useActionState no formulário. */
 export async function login(
@@ -35,6 +36,36 @@ export async function login(
 
   await createSession(user.id);
   redirect("/");
+}
+
+/** Troca a senha do usuário logado (exige a senha atual). */
+export async function changePassword(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const user = await getCurrentUser(); // exige login
+  const current = String(formData.get("current") ?? "");
+  const next = String(formData.get("new") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+  if (!dbUser?.passwordHash) {
+    return { error: "Sua conta ainda não tem senha definida." };
+  }
+
+  const ok = await verifyPassword(current, dbUser.passwordHash);
+  if (!ok) return { error: "Senha atual incorreta." };
+  if (next.length < 6) {
+    return { error: "A nova senha precisa ter ao menos 6 caracteres." };
+  }
+  if (next !== confirm) return { error: "As senhas novas não conferem." };
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await hashPassword(next) },
+  });
+
+  return { success: "Senha alterada com sucesso." };
 }
 
 /** Logout. */
