@@ -27,7 +27,14 @@ export const NAV: NavItem[] = [
   },
 ];
 
-export type IconName = "home" | "chart" | "plus" | "calendar" | "dumbbell";
+export type IconName =
+  | "home"
+  | "chart"
+  | "plus"
+  | "calendar"
+  | "dumbbell"
+  | "layers"
+  | "activity";
 
 const PATHS: Record<IconName, ReactNode> = {
   home: <path d="M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5" />,
@@ -42,6 +49,8 @@ const PATHS: Record<IconName, ReactNode> = {
   dumbbell: (
     <path d="M2 12h2m16 0h2M6.5 8.5v7m11-7v7M4.5 10v4m15-4v4M6.5 12h11" />
   ),
+  layers: <path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />,
+  activity: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
 };
 
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {

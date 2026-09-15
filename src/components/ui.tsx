@@ -29,21 +29,33 @@ export function StatCard({
   value,
   hint,
   trend,
+  icon,
   accent = false,
 }: {
   label: string;
   value: string;
   hint?: string;
   trend?: { value: string; positive?: boolean };
+  icon?: ReactNode;
   accent?: boolean;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5">
+    <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface p-5">
       {accent && (
         <span className="absolute inset-x-0 top-0 h-0.5 bg-accent" aria-hidden />
       )}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-start justify-between gap-2">
         <p className="eyebrow">{label}</p>
+        {icon && (
+          <span className="shrink-0 text-muted/50" aria-hidden>
+            {icon}
+          </span>
+        )}
+      </div>
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <p className="stat-number text-3xl leading-none text-foreground">
+          {value}
+        </p>
         {trend && (
           <span
             className={`rounded-full px-1.5 py-0.5 text-xs font-semibold tabular ${
@@ -56,9 +68,6 @@ export function StatCard({
           </span>
         )}
       </div>
-      <p className="stat-number mt-2 text-3xl leading-none text-foreground">
-        {value}
-      </p>
       {hint && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
     </div>
   );

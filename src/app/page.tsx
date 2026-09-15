@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/user";
 import { Card, EmptyState, SectionTitle, StatCard } from "@/components/ui";
+import { Icon } from "@/components/nav-icons";
 import { WeeklyVolumeChart } from "@/components/charts/WeeklyVolumeChart";
 import { formatDate, formatDateShort, setVolume } from "@/lib/calc";
 
@@ -97,19 +98,30 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Treinos totais" value={String(totalSessions)} accent />
-        <StatCard label="Séries registradas" value={String(totalSets)} />
+      <div className="grid grid-cols-2 items-stretch gap-4 lg:grid-cols-4">
+        <StatCard
+          label="Treinos totais"
+          value={String(totalSessions)}
+          icon={<Icon name="calendar" size={18} />}
+          accent
+        />
+        <StatCard
+          label="Séries registradas"
+          value={String(totalSets)}
+          icon={<Icon name="layers" size={18} />}
+        />
         <StatCard
           label="Volume · 30 dias"
           value={`${Math.round(volume30d).toLocaleString("pt-BR")} kg`}
           hint="Peso × repetições"
           trend={pctTrend(volume30d, volumePrev30d)}
+          icon={<Icon name="dumbbell" size={18} />}
         />
         <StatCard
           label="Treinos · 30 dias"
           value={String(sessions30d)}
           trend={pctTrend(sessions30d, sessionsPrev30d)}
+          icon={<Icon name="activity" size={18} />}
         />
       </div>
 
