@@ -37,10 +37,12 @@ yarn-error.log*
 # vercel
 .vercel
 
-# skills de outras ferramentas de IA (geradas pelo prisma init)
+# ferramentas de IA / config local (não fazem parte do app)
 /.windsurf
 /.agents
+/.codex
 /.claude/skills
+/.claude/settings.local.json
 /skills-lock.json
 
 # typescript
