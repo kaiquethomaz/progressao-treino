@@ -58,11 +58,13 @@ export function SessionLogger({
   routineDays,
   allExercises,
   lastByExercise,
+  prByExercise = {},
   initial,
 }: {
   routineDays: RoutineDayView[];
   allExercises: ExerciseLite[];
   lastByExercise: Record<string, { weight: number; reps: number }>;
+  prByExercise?: Record<string, number>;
   initial?: EditInitial;
 }) {
   const router = useRouter();
@@ -190,6 +192,30 @@ export function SessionLogger({
     return Array.from(groups.entries());
   }, [rows]);
 
+  // Detecta recordes pessoais: maior carga digitada > maior carga já registrada.
+  // Só vale quando existe histórico anterior (evita "recorde" na estreia do exercício).
+  const prHits = useMemo(() => {
+    if (editing) return [];
+    const maxByEx = new Map<string, number>();
+    for (const r of rows) {
+      if (!r.exerciseId || !r.weight) continue;
+      const w = Number(r.weight);
+      if (!Number.isFinite(w) || w <= 0) continue;
+      maxByEx.set(r.exerciseId, Math.max(maxByEx.get(r.exerciseId) ?? 0, w));
+    }
+    const hits: { exerciseId: string; weight: number; pr: number }[] = [];
+    for (const [exId, w] of maxByEx) {
+      const pr = prByExercise[exId] ?? 0;
+      if (pr > 0 && w > pr) hits.push({ exerciseId: exId, weight: w, pr });
+    }
+    return hits;
+  }, [rows, prByExercise, editing]);
+
+  const prHitIds = useMemo(
+    () => new Set(prHits.map((h) => h.exerciseId)),
+    [prHits],
+  );
+
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <Card className="lg:col-span-1 h-fit">
@@ -273,6 +299,27 @@ export function SessionLogger({
       <div className="lg:col-span-2">
         <Card>
           <SectionTitle>Séries</SectionTitle>
+          {prHits.length > 0 && (
+            <div className="rise mb-4 rounded-xl border border-accent/40 bg-accent/10 p-3">
+              <p className="flex items-center gap-2 text-sm font-semibold text-accent">
+                <span className="text-lg leading-none">🎉</span>
+                Novo recorde pessoal!
+              </p>
+              <ul className="mt-1.5 space-y-0.5 pl-7 text-xs text-muted">
+                {prHits.map((h) => (
+                  <li key={h.exerciseId}>
+                    <span className="font-medium text-foreground">
+                      {exerciseName(h.exerciseId)}
+                    </span>{" "}
+                    <span className="tabular">{h.weight} kg</span>{" "}
+                    <span className="text-muted/70">
+                      (recorde anterior: {h.pr} kg)
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {rows.length === 0 ? (
             <div className="mx-auto max-w-md py-8 text-center">
               <div className="mb-2 text-3xl opacity-80">📋</div>
@@ -287,7 +334,11 @@ export function SessionLogger({
                     <button
                       key={d.id}
                       onClick={() => loadDay(d.id)}
-                      className="group flex w-full items-center gap-3 rounded-xl border border-border bg-surface-2 p-3 text-left transition-colors duration-150 hover:border-accent/50"
+                      className={`group flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-150 ${
+                        dayId === d.id
+                          ? "border-accent bg-accent/5"
+                          : "border-border bg-surface-2 hover:border-accent hover:bg-accent/5"
+                      }`}
                     >
                       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-3 text-xs font-bold text-accent">
                         {WEEKDAY_LABELS[d.weekday].slice(0, 3)}
@@ -315,13 +366,29 @@ export function SessionLogger({
             </div>
           ) : (
             <div className="space-y-5">
-              {grouped.map(([exId, exRows]) => (
+              {grouped.map(([exId, exRows]) => {
+                const last = lastByExercise[exId];
+                return (
                 <div key={exId}>
-                  <div className="mb-2 flex items-center justify-between">
-                    <h4 className="font-medium">{exerciseName(exId)}</h4>
+                  <div className="mb-2 flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">{exerciseName(exId)}</h4>
+                        {prHitIds.has(exId) && (
+                          <span className="rounded-full bg-accent/15 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wide text-accent">
+                            Recorde
+                          </span>
+                        )}
+                      </div>
+                      {last && (
+                        <p className="mt-0.5 text-xs text-muted">
+                          Último: {last.weight} kg × {last.reps}
+                        </p>
+                      )}
+                    </div>
                     <button
                       onClick={() => addRowForExercise(exId)}
-                      className="text-xs text-accent hover:underline"
+                      className="shrink-0 text-xs text-accent hover:underline"
                     >
                       + série
                     </button>
@@ -346,6 +413,7 @@ export function SessionLogger({
                           type="number"
                           step="0.5"
                           value={r.weight}
+                          placeholder={last ? String(last.weight) : "kg"}
                           onChange={(e) =>
                             updateRow(r.key, { weight: e.target.value })
                           }
@@ -380,7 +448,8 @@ export function SessionLogger({
                     ))}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </Card>

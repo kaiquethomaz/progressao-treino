@@ -9,7 +9,7 @@ export default async function RegistrarPage() {
   const user = await getCurrentUser();
   const routine = await getOrCreateActiveRoutine();
 
-  const [routineDays, allExercises, recentSets] = await Promise.all([
+  const [routineDays, allExercises, recentSets, prRows] = await Promise.all([
     prisma.routineDay.findMany({
       where: { routineId: routine.id },
       include: {
@@ -33,6 +33,12 @@ export default async function RegistrarPage() {
       take: 400,
       select: { exerciseId: true, weight: true, reps: true },
     }),
+    // Recorde (maior carga já registrada) por exercício — para comemorar PRs
+    prisma.setEntry.groupBy({
+      by: ["exerciseId"],
+      where: { session: { userId: user.id } },
+      _max: { weight: true },
+    }),
   ]);
 
   const lastByExercise: Record<string, { weight: number; reps: number }> = {};
@@ -40,6 +46,11 @@ export default async function RegistrarPage() {
     if (!lastByExercise[s.exerciseId]) {
       lastByExercise[s.exerciseId] = { weight: s.weight, reps: s.reps };
     }
+  }
+
+  const prByExercise: Record<string, number> = {};
+  for (const r of prRows) {
+    if (r._max.weight != null) prByExercise[r.exerciseId] = r._max.weight;
   }
 
   return (
@@ -54,6 +65,7 @@ export default async function RegistrarPage() {
         routineDays={routineDays}
         allExercises={allExercises}
         lastByExercise={lastByExercise}
+        prByExercise={prByExercise}
       />
     </div>
   );
