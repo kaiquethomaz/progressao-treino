@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import type { MuscleGroup } from "@/generated/prisma/enums";
 import { MUSCLE_GROUPS, MUSCLE_GROUP_LABELS } from "@/lib/labels";
 import { MuscleBadge, Card } from "@/components/ui";
+import { Drawer } from "@/components/Drawer";
 import {
   createExercise,
   deleteExercise,
@@ -24,6 +25,7 @@ export function ExerciseManager({ exercises }: { exercises: ExerciseRow[] }) {
   const [notes, setNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
   // Busca + filtro por grupo muscular
@@ -50,72 +52,32 @@ export function ExerciseManager({ exercises }: { exercises: ExerciseRow[] }) {
       else {
         setName("");
         setNotes("");
+        setDrawerOpen(false);
       }
     });
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      {/* Formulário */}
-      <Card className="lg:col-span-1 h-fit">
-        <h2 className="mb-4 text-lg font-semibold">Novo exercício</h2>
-        <div className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs text-muted">Nome</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex: Supino reto"
-              className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted">
-              Grupo muscular
-            </label>
-            <select
-              value={group}
-              onChange={(e) => setGroup(e.target.value as MuscleGroup)}
-              className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
-            >
-              {MUSCLE_GROUPS.map((g) => (
-                <option key={g} value={g}>
-                  {MUSCLE_GROUP_LABELS[g]}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs text-muted">
-              Observações (opcional)
-            </label>
-            <input
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Ex: pegada fechada"
-              className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
-            />
-          </div>
-          {error && <p className="text-sm text-danger">{error}</p>}
-          <button
-            onClick={handleAdd}
-            disabled={pending || !name.trim()}
-            className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-50"
-          >
-            {pending ? "Salvando..." : "Adicionar exercício"}
-          </button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-bold">Meus exercícios</h2>
+          <span className="text-sm text-muted tabular">
+            {visible.length}/{exercises.length} exercícios
+          </span>
         </div>
-      </Card>
+        <button
+          onClick={() => {
+            setError(null);
+            setDrawerOpen(true);
+          }}
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover"
+        >
+          + Novo exercício
+        </button>
+      </div>
 
-      {/* Lista */}
-      <div className="lg:col-span-2">
-        <Card>
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold">Meus exercícios</h2>
-            <span className="text-sm text-muted tabular">
-              {visible.length}/{exercises.length}
-            </span>
-          </div>
+      <Card>
 
           {exercises.length > 0 && (
             <div className="mb-4 space-y-3">
@@ -190,7 +152,59 @@ export function ExerciseManager({ exercises }: { exercises: ExerciseRow[] }) {
             </ul>
           )}
         </Card>
-      </div>
+
+        <Drawer
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          title="Novo exercício"
+        >
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted">Nome</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ex: Supino reto"
+                className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted">
+                Grupo muscular
+              </label>
+              <select
+                value={group}
+                onChange={(e) => setGroup(e.target.value as MuscleGroup)}
+                className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
+              >
+                {MUSCLE_GROUPS.map((g) => (
+                  <option key={g} value={g}>
+                    {MUSCLE_GROUP_LABELS[g]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted">
+                Observações (opcional)
+              </label>
+              <input
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Ex: pegada fechada"
+                className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm outline-none focus:border-accent"
+              />
+            </div>
+            {error && <p className="text-sm text-danger">{error}</p>}
+            <button
+              onClick={handleAdd}
+              disabled={pending || !name.trim()}
+              className="w-full rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-hover disabled:opacity-50"
+            >
+              {pending ? "Salvando..." : "Adicionar exercício"}
+            </button>
+          </div>
+        </Drawer>
     </div>
   );
 }
