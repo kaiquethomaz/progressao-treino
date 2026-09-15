@@ -157,6 +157,8 @@ function DayCard({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
+  const totalSets = items.reduce((sum, e) => sum + e.targetSets, 0);
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, {
@@ -200,6 +202,13 @@ function DayCard({
             {WEEKDAY_LABELS[day.weekday]}
           </p>
           <h3 className="text-lg font-semibold">{day.label}</h3>
+          {items.length > 0 && (
+            <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-[0.7rem] font-medium text-muted tabular">
+              {items.length} {items.length === 1 ? "exercício" : "exercícios"}
+              <span aria-hidden className="text-muted/40">•</span>
+              {totalSets} {totalSets === 1 ? "série total" : "séries totais"}
+            </span>
+          )}
         </div>
         <button
           onClick={removeDay}
