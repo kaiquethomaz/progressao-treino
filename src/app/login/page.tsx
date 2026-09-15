@@ -16,8 +16,12 @@ export default async function LoginPage() {
   return (
     <div className="mx-auto max-w-sm py-10">
       <div className="mb-6 text-center">
-        <div className="text-3xl">🏋️</div>
-        <h1 className="mt-2 text-2xl font-bold">Progressão de Treino</h1>
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-accent text-2xl text-accent-contrast">
+          🏋️
+        </div>
+        <h1 className="mt-3 text-2xl font-extrabold uppercase tracking-tight">
+          Progressão
+        </h1>
         <p className="mt-1 text-sm text-muted">Entre para ver seus treinos.</p>
       </div>
       <div className="rounded-2xl border border-border bg-surface p-6">

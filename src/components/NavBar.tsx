@@ -21,13 +21,18 @@ export function NavBar({ userName }: { userName?: string | null }) {
   if (HIDDEN_ON.includes(pathname)) return null;
 
   return (
-    <header className="sticky top-0 z-20 border-b border-border bg-surface/80 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-1 px-4 py-3 sm:gap-2">
-        <Link href="/" className="mr-2 flex items-center gap-2 font-bold">
-          <span className="text-xl">🏋️</span>
+        <Link
+          href="/"
+          className="mr-3 flex items-center gap-2 font-display text-sm font-extrabold uppercase tracking-tight"
+        >
+          <span className="grid h-7 w-7 place-items-center rounded-lg bg-accent text-base text-accent-contrast">
+            🏋️
+          </span>
           <span className="hidden sm:inline">Progressão</span>
         </Link>
-        <nav className="flex flex-1 flex-wrap items-center gap-1 text-sm">
+        <nav className="flex flex-1 flex-wrap items-center gap-1 text-sm font-medium">
           {LINKS.map((link) => {
             const active =
               link.href === "/"
@@ -37,7 +42,7 @@ export function NavBar({ userName }: { userName?: string | null }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-lg px-3 py-1.5 transition-colors ${
+                className={`rounded-lg px-3 py-1.5 transition-colors duration-150 ${
                   active
                     ? "bg-accent/15 text-accent"
                     : "text-muted hover:bg-surface-2 hover:text-foreground"
@@ -49,14 +54,17 @@ export function NavBar({ userName }: { userName?: string | null }) {
           })}
         </nav>
         {userName && (
-          <div className="flex items-center gap-2">
-            <span className="hidden text-sm text-muted sm:inline">
+          <div className="flex items-center gap-3">
+            <span className="hidden items-center gap-2 text-sm text-muted-strong sm:flex">
+              <span className="grid h-6 w-6 place-items-center rounded-full bg-surface-2 text-xs font-bold text-accent">
+                {userName.charAt(0).toUpperCase()}
+              </span>
               {userName}
             </span>
             <form action={logout}>
               <button
                 type="submit"
-                className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground"
+                className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted transition-colors duration-150 hover:border-border-strong hover:text-foreground"
               >
                 Sair
               </button>

@@ -21,8 +21,12 @@ export default async function SetupPage() {
   return (
     <div className="mx-auto max-w-sm py-10">
       <div className="mb-6 text-center">
-        <div className="text-3xl">🏋️</div>
-        <h1 className="mt-2 text-2xl font-bold">Bem-vindo!</h1>
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-accent text-2xl text-accent-contrast">
+          🏋️
+        </div>
+        <h1 className="mt-3 text-2xl font-extrabold tracking-tight">
+          Bem-vindo!
+        </h1>
         <p className="mt-1 text-sm text-muted">
           Crie sua senha para proteger o app.
         </p>

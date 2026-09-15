@@ -29,16 +29,16 @@ export function ProgressChart({ data }: { data: Point[] }) {
   return (
     <ResponsiveContainer width="100%" height={340}>
       <LineChart data={data} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#263143" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#262b34" vertical={false} />
         <XAxis
           dataKey="label"
-          stroke="#93a1b5"
+          stroke="#8b93a1"
           fontSize={12}
           tickLine={false}
           axisLine={false}
         />
         <YAxis
-          stroke="#93a1b5"
+          stroke="#8b93a1"
           fontSize={12}
           tickLine={false}
           axisLine={false}
@@ -47,10 +47,10 @@ export function ProgressChart({ data }: { data: Point[] }) {
         />
         <Tooltip
           contentStyle={{
-            background: "#131a26",
-            border: "1px solid #263143",
+            background: "#131519",
+            border: "1px solid #262b34",
             borderRadius: 12,
-            color: "#e7edf5",
+            color: "#eef1f5",
           }}
           formatter={(value: unknown, name: unknown) => [
             `${Math.round(Number(value) * 10) / 10} kg`,
@@ -66,15 +66,15 @@ export function ProgressChart({ data }: { data: Point[] }) {
         <Line
           type="monotone"
           dataKey="maxWeight"
-          stroke="#34d399"
+          stroke="#c2f542"
           strokeWidth={2.5}
-          dot={{ r: 3, fill: "#34d399" }}
+          dot={{ r: 3, fill: "#c2f542" }}
           activeDot={{ r: 5 }}
         />
         <Line
           type="monotone"
           dataKey="est1RM"
-          stroke="#60a5fa"
+          stroke="#38bdf8"
           strokeWidth={2}
           strokeDasharray="5 4"
           dot={false}

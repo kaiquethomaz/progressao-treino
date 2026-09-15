@@ -1,34 +1,134 @@
 @import "tailwindcss";
 
+/*
+  Sistema de design — "Atlético & Energético"
+  Base escura de alto contraste + accent verde-limão elétrico.
+  Tipografia: display forte (Archivo) para títulos/números, sans limpa no corpo.
+*/
+
 :root {
-  --background: #0b0f16;
-  --surface: #131a26;
-  --surface-2: #1b2434;
-  --border: #263143;
-  --foreground: #e7edf5;
-  --muted: #93a1b5;
-  --accent: #34d399;
+  /* Superfícies (do fundo para cima) */
+  --background: #0a0b0e;
+  --surface: #131519;
+  --surface-2: #1b1e25;
+  --surface-3: #232833;
+
+  /* Bordas */
+  --border: #262b34;
+  --border-strong: #333b48;
+
+  /* Texto */
+  --foreground: #eef1f5;
+  --muted: #8b93a1;
+  --muted-strong: #aeb6c4;
+
+  /* Accent — verde-limão elétrico */
+  --accent: #c2f542;
+  --accent-hover: #d0f96a;
+  --accent-contrast: #0a0b0e;
+
+  /* Apoio */
+  --danger: #fb7185;
+  --chart-2: #38bdf8;
+
+  /* Movimento */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+  --color-muted-strong: var(--muted-strong);
   --color-accent: var(--accent);
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Arial, sans-serif;
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: var(--font-display), var(--font-sans), ui-sans-serif,
+    system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Barra de rolagem discreta no tema escuro */
+/* Títulos com o display font e tracking justo (cara atlética) */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Números de destaque: peso alto, largura fixa (não "dançam" ao atualizar) */
+.stat-number {
+  font-family: var(--font-display), var(--font-sans), sans-serif;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Eyebrow: rótulo pequeno em maiúsculas, bem espaçado */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Acessibilidade: foco visível consistente */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
 * {
-  scrollbar-color: var(--border) transparent;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Entrada sutil e curta (sem bounce). Respeita quem prefere menos movimento. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise 0.4s var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -5,13 +5,19 @@ import { MUSCLE_GROUP_LABELS } from "@/lib/labels";
 export function Card({
   children,
   className = "",
+  interactive = false,
 }: {
   children: ReactNode;
   className?: string;
+  interactive?: boolean;
 }) {
   return (
     <div
-      className={`rounded-2xl border border-border bg-surface p-5 ${className}`}
+      className={`rounded-2xl border border-border bg-surface p-5 ${
+        interactive
+          ? "transition-colors duration-150 hover:border-border-strong"
+          : ""
+      } ${className}`}
     >
       {children}
     </div>
@@ -22,19 +28,39 @@ export function StatCard({
   label,
   value,
   hint,
+  trend,
+  accent = false,
 }: {
   label: string;
   value: string;
   hint?: string;
+  trend?: { value: string; positive?: boolean };
+  accent?: boolean;
 }) {
   return (
-    <Card>
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
-        {label}
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-surface p-5">
+      {accent && (
+        <span className="absolute inset-x-0 top-0 h-0.5 bg-accent" aria-hidden />
+      )}
+      <div className="flex items-center justify-between gap-2">
+        <p className="eyebrow">{label}</p>
+        {trend && (
+          <span
+            className={`rounded-full px-1.5 py-0.5 text-xs font-semibold tabular ${
+              trend.positive === false
+                ? "bg-danger/15 text-danger"
+                : "bg-accent/15 text-accent"
+            }`}
+          >
+            {trend.value}
+          </span>
+        )}
+      </div>
+      <p className="stat-number mt-2 text-3xl leading-none text-foreground">
+        {value}
       </p>
-      <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
-    </Card>
+      {hint && <p className="mt-1.5 text-xs text-muted">{hint}</p>}
+    </div>
   );
 }
 
@@ -47,7 +73,10 @@ export function SectionTitle({
 }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-4">
-      <h2 className="text-lg font-semibold">{children}</h2>
+      <h2 className="flex items-center gap-2.5 text-lg font-bold">
+        <span className="h-4 w-1 rounded-full bg-accent" aria-hidden />
+        {children}
+      </h2>
       {action}
     </div>
   );
@@ -72,9 +101,33 @@ const MUSCLE_COLORS: Record<MuscleGroup, string> = {
 export function MuscleBadge({ group }: { group: MuscleGroup }) {
   return (
     <span
-      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${MUSCLE_COLORS[group]}`}
+      className={`inline-flex rounded-full px-2 py-0.5 text-[0.65rem] font-semibold uppercase tracking-wide ${MUSCLE_COLORS[group]}`}
     >
       {MUSCLE_GROUP_LABELS[group]}
     </span>
+  );
+}
+
+// Botão primário reutilizável (accent lime + texto escuro)
+export function EmptyState({
+  icon = "🏋️",
+  title,
+  description,
+  action,
+}: {
+  icon?: string;
+  title: string;
+  description?: string;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+      <div className="mb-1 text-3xl opacity-80">{icon}</div>
+      <p className="font-semibold">{title}</p>
+      {description && (
+        <p className="max-w-xs text-sm text-muted">{description}</p>
+      )}
+      {action && <div className="mt-2">{action}</div>}
+    </div>
   );
 }
